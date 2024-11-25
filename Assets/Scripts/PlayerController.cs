@@ -5,7 +5,9 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed;
+    private bool isGrounded = true;
     private Rigidbody2D rb;
+
     public enum FacingDirection
     {
         left, right
@@ -32,6 +34,22 @@ public class PlayerController : MonoBehaviour
         Vector2 velocity = new Vector2(playerInput.x * moveSpeed, rb.velocity.y);
         rb.velocity = velocity;
     }
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+        {
+            Debug.Log("Character is grounded.");
+            isGrounded = true;
+        }
+    }
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+        {
+            isGrounded = false;
+        }
+    }
+
 
     public bool IsWalking()
     {
@@ -39,7 +57,7 @@ public class PlayerController : MonoBehaviour
     }
     public bool IsGrounded()
     {
-        return true;
+        return isGrounded;
     }
 
     public FacingDirection GetFacingDirection()
