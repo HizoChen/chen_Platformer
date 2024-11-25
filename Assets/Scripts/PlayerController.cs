@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
         //manage the actual movement of the character.
         Vector2 playerInput = new Vector2(Input.GetAxis("Horizontal"), 0);
         MovementUpdate(playerInput);
+        
     }
 
     private void MovementUpdate(Vector2 playerInput)
@@ -34,7 +35,7 @@ public class PlayerController : MonoBehaviour
 
     public bool IsWalking()
     {
-        return false;
+        return  Mathf.Abs(rb.velocity.x) > 0.1f; 
     }
     public bool IsGrounded()
     {
@@ -43,6 +44,14 @@ public class PlayerController : MonoBehaviour
 
     public FacingDirection GetFacingDirection()
     {
+        if (rb.velocity.x > 0.01f)
+        {
+            return FacingDirection.right;
+        }
+        else if (rb.velocity.x < -0.01f)
+        {
+            return FacingDirection.left;
+        }
         return FacingDirection.left;
     }
 }
