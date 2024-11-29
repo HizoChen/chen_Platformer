@@ -7,6 +7,9 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed;
     private bool isGrounded = true;
     private Rigidbody2D rb;
+    public float jumpHeight; 
+    public float jumpTime;
+    public float jumpVelocity;
 
     public enum FacingDirection
     {
@@ -24,15 +27,27 @@ public class PlayerController : MonoBehaviour
     {
         //The input from the player needs to be determined and then passed in the to the MovementUpdate which should
         //manage the actual movement of the character.
-        Vector2 playerInput = new Vector2(Input.GetAxis("Horizontal"), 0);
+        Vector2 playerInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         MovementUpdate(playerInput);
         
     }
-
+   
+  
     private void MovementUpdate(Vector2 playerInput)
     {
-        Vector2 velocity = new Vector2(playerInput.x * moveSpeed, rb.velocity.y);
+        Vector2 velocity = new Vector2(playerInput.x * moveSpeed, playerInput.y);
         rb.velocity = velocity;
+
+        if (playerInput.y > 0 && IsGrounded()) 
+        {
+            jumpVelocity = (2 * jumpHeight) / jumpTime;
+            rb.velocity = new Vector2(velocity.x, velocity.y *jumpVelocity);
+            rb.gravityScale = 0f;
+        }
+        if (rb.velocity.y <= 0)
+        {
+            rb.gravityScale = 20; 
+        }
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
