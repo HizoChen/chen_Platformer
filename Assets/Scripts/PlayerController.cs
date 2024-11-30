@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     public float jumpHeight; 
     public float jumpTime;
     public float jumpVelocity;
+    public float terminalSpeed;
 
     public enum FacingDirection
     {
@@ -31,29 +32,36 @@ public class PlayerController : MonoBehaviour
         MovementUpdate(playerInput);
         
     }
-   
-  
     private void MovementUpdate(Vector2 playerInput)
     {
-        Vector2 velocity = new Vector2(playerInput.x * moveSpeed, playerInput.y);
+        Vector2 velocity = new Vector2(playerInput.x * moveSpeed, rb.velocity.y);
         rb.velocity = velocity;
 
-        if (playerInput.y > 0 && IsGrounded()) 
+
+        if (playerInput.y > 0 && IsGrounded())
         {
             jumpVelocity = (2 * jumpHeight) / jumpTime;
-            rb.velocity = new Vector2(velocity.x, velocity.y *jumpVelocity);
+            velocity = new Vector2(velocity.x, playerInput.y * jumpVelocity);
             rb.gravityScale = 0f;
+            rb.velocity = velocity;
         }
-        if (rb.velocity.y <= 0)
+
+        if (playerInput.y <= 0)
         {
-            rb.gravityScale = 20; 
-        }
+            rb.gravityScale = 1;
+
+            if (velocity.y < terminalSpeed)
+            {
+                velocity = new Vector2(rb.velocity.x, terminalSpeed);
+                Debug.Log(" Terminal Velocity");
+            }
+        
+          }
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Ground")
         {
-            Debug.Log("Character is grounded.");
             isGrounded = true;
         }
     }
