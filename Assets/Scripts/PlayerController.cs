@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
     public float jumpTime;
     public float jumpVelocity;
     public float terminalSpeed;
+    public float coyoteTime;
+    public float coyoteTimeCounter;
 
     public enum FacingDirection
     {
@@ -21,6 +23,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+       
     }
 
     // Update is called once per frame
@@ -37,13 +40,22 @@ public class PlayerController : MonoBehaviour
         Vector2 velocity = new Vector2(playerInput.x * moveSpeed, rb.velocity.y);
         rb.velocity = velocity;
 
-
-        if (playerInput.y > 0 && IsGrounded())
+        if (IsGrounded())
+        {
+            coyoteTimeCounter= coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+            if (playerInput.y > 0 && coyoteTimeCounter>0)
         {
             jumpVelocity = (2 * jumpHeight) / jumpTime;
             velocity = new Vector2(velocity.x, playerInput.y * jumpVelocity);
             rb.gravityScale = 0f;
             rb.velocity = velocity;
+            Debug.Log("jump");
+            Debug.Log($"coyoteTimeCounter: {coyoteTimeCounter}");
         }
 
         if (playerInput.y <= 0)
@@ -53,9 +65,8 @@ public class PlayerController : MonoBehaviour
             if (velocity.y < terminalSpeed)
             {
                 velocity = new Vector2(rb.velocity.x, terminalSpeed);
-                Debug.Log(" Terminal Velocity");
             }
-        
+            coyoteTimeCounter = 0;
           }
     }
     private void OnCollisionStay2D(Collision2D collision)
@@ -63,6 +74,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Ground")
         {
             isGrounded = true;
+           
         }
     }
     private void OnCollisionExit2D(Collision2D collision)
@@ -70,6 +82,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Ground")
         {
             isGrounded = false;
+           
         }
     }
 
