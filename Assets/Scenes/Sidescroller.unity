@@ -1702,6 +1702,8 @@ MonoBehaviour:
   terminalSpeed: -5
   coyoteTime: 0.5
   coyoteTimeCounter: 0
+  dashSpeed: 10
+  dashDuration: 0.5
 --- !u!4 &1433354315
 Transform:
   m_ObjectHideFlags: 0

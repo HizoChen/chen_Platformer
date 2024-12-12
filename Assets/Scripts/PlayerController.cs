@@ -16,7 +16,12 @@ public class PlayerController : MonoBehaviour
     public float terminalSpeed;
     public float coyoteTime;
     public float coyoteTimeCounter;
-   
+
+
+    public float dashSpeed; 
+    public float dashDuration;
+    private bool isDashing = false;
+    private bool turnleft;
     public enum FacingDirection
     {
         left, right
@@ -32,22 +37,45 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //The input from the player needs to be determined and then passed in the to the MovementUpdate which should
-        //manage the actual movement of the character.
         Vector2 playerInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        MovementUpdate(playerInput);
-        
+        if (!isDashing)
+        {
+            MovementUpdate(playerInput);
+        }
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+          StartCoroutine(Dash(playerInput));
+        }
+       
+
     }
+    private IEnumerator Dash(Vector2 playerInput)
+    {
+        isDashing = true;
+        if (turnleft == true)
+        {
+            rb.velocity = new Vector2( -1 * dashSpeed, rb.velocity.y);
+            Debug.Log("dash to left");
+            yield return new WaitForSeconds(dashDuration);
+            isDashing = false;
+        }
+        else if (turnleft == false)
+        {
+            rb.velocity = new Vector2(1 * dashSpeed, rb.velocity.y);
+            Debug.Log("dash to right");
+            yield return new WaitForSeconds(dashDuration);
+            isDashing = false;
+        }      
+    }
+
     public void Jump(InputAction.CallbackContext ctx)
     {
         if (ctx.phase == InputActionPhase.Started)
         {
-            Debug.Log("openjump");
             canjump = true; 
         }
         else if (ctx.phase == InputActionPhase.Canceled)
         {
-            Debug.Log("closejump");
             canjump = false; 
         }
     }
@@ -115,12 +143,14 @@ public class PlayerController : MonoBehaviour
     {
         if (rb.velocity.x > 0.01f)
         {
+            turnleft = false;
             return FacingDirection.right;
         }
         else if (rb.velocity.x < -0.01f)
         {
+            turnleft = true;
             return FacingDirection.left;
         }
-        return FacingDirection.left;
+        return FacingDirection.right;
     }
 }
