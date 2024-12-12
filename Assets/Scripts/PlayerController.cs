@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed;
+    public bool canjump = true;
     private bool isGrounded = true;
     private Rigidbody2D rb;
     public float jumpHeight; 
@@ -13,7 +16,7 @@ public class PlayerController : MonoBehaviour
     public float terminalSpeed;
     public float coyoteTime;
     public float coyoteTimeCounter;
-
+   
     public enum FacingDirection
     {
         left, right
@@ -35,11 +38,24 @@ public class PlayerController : MonoBehaviour
         MovementUpdate(playerInput);
         
     }
+    public void Jump(InputAction.CallbackContext ctx)
+    {
+        if (ctx.phase == InputActionPhase.Started)
+        {
+            Debug.Log("openjump");
+            canjump = true; 
+        }
+        else if (ctx.phase == InputActionPhase.Canceled)
+        {
+            Debug.Log("closejump");
+            canjump = false; 
+        }
+    }
+
     private void MovementUpdate(Vector2 playerInput)
     {
         Vector2 velocity = new Vector2(playerInput.x * moveSpeed, rb.velocity.y);
         rb.velocity = velocity;
-
         if (IsGrounded())
         {
             coyoteTimeCounter= coyoteTime;
@@ -48,19 +64,18 @@ public class PlayerController : MonoBehaviour
         {
             coyoteTimeCounter -= Time.deltaTime;
         }
-            if (playerInput.y > 0 && coyoteTimeCounter>0)
+            if (playerInput.y > 0 && coyoteTimeCounter> 0 && canjump)
         {
             jumpVelocity = (2 * jumpHeight) / jumpTime;
-            velocity = new Vector2(velocity.x, playerInput.y * jumpVelocity);
+            velocity = new Vector2(velocity.x, jumpVelocity);
             rb.gravityScale = 0f;
             rb.velocity = velocity;
-            Debug.Log("jump");
-            Debug.Log($"coyoteTimeCounter: {coyoteTimeCounter}");
+            canjump = false;
         }
 
-        if (playerInput.y <= 0)
+        if (!canjump)
         {
-            rb.gravityScale = 1;
+            rb.gravityScale = 2;
 
             if (velocity.y < terminalSpeed)
             {

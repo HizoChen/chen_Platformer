@@ -1,0 +1,45 @@
+{
+    "name": "actions",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "71f22081-5496-4274-b894-289166b64ec4",
+            "actions": [
+                {
+                    "name": "Jump",
+                    "type": "Value",
+                    "id": "67d0447e-5497-4df1-9fd2-3a4f40a50464",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "e8a0b337-9914-41c6-b719-a00e33bb2243",
+                    "path": "<Keyboard>/w",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2bc490ef-5b4b-4ef6-8b6b-2bbf13d076ba",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
