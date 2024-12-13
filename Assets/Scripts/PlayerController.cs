@@ -3,35 +3,36 @@ using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed;
     public bool canjump = true;
     private bool isGrounded = true;
+    private bool isWall;
     private Rigidbody2D rb;
-    public float jumpHeight; 
+    public float jumpHeight;
     public float jumpTime;
     public float jumpVelocity;
     public float terminalSpeed;
     public float coyoteTime;
     public float coyoteTimeCounter;
-
-
-    public float dashSpeed; 
+    public float dashSpeed;
     public float dashDuration;
     private bool isDashing = false;
     private bool turnleft;
+    private bool isWallJumping = false;
+ 
     public enum FacingDirection
     {
         left, right
     }
-
+ 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-       
     }
 
     // Update is called once per frame
@@ -46,10 +47,35 @@ public class PlayerController : MonoBehaviour
         {
           StartCoroutine(Dash(playerInput));
         }
-       
+        if (isWall && playerInput.y > 0 )
+        {
+            WallJump();
+        }
 
     }
-    private IEnumerator Dash(Vector2 playerInput)
+    private void WallJump()
+    {
+        
+        if (turnleft == true)
+        {
+            rb.velocity = new Vector2(1 * 40, jumpVelocity);
+            Debug.Log("Wall Jump!");
+            StartCoroutine(StopWallJump());
+
+        }
+        else if (turnleft == false)
+        {
+            rb.velocity = new Vector2(-1 * 40, jumpVelocity);
+            Debug.Log("Wall Jump!");
+            StartCoroutine(StopWallJump());
+        }      
+    }
+    private IEnumerator StopWallJump()
+    {
+        yield return new WaitForSeconds(19f);
+        isWallJumping = false;
+    }
+        private IEnumerator Dash(Vector2 playerInput)
     {
         isDashing = true;
         if (turnleft == true)
@@ -84,21 +110,24 @@ public class PlayerController : MonoBehaviour
     {
         Vector2 velocity = new Vector2(playerInput.x * moveSpeed, rb.velocity.y);
         rb.velocity = velocity;
+        
+
         if (IsGrounded())
         {
-            coyoteTimeCounter= coyoteTime;
+            coyoteTimeCounter = coyoteTime;
         }
         else
         {
             coyoteTimeCounter -= Time.deltaTime;
         }
-            if (playerInput.y > 0 && coyoteTimeCounter> 0 && canjump)
+        if (playerInput.y > 0 && coyoteTimeCounter> 0 && canjump)
         {
             jumpVelocity = (2 * jumpHeight) / jumpTime;
             velocity = new Vector2(velocity.x, jumpVelocity);
             rb.gravityScale = 0f;
             rb.velocity = velocity;
             canjump = false;
+            
         }
 
         if (!canjump)
@@ -112,12 +141,19 @@ public class PlayerController : MonoBehaviour
             coyoteTimeCounter = 0;
           }
     }
+
+
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Ground")
         {
             isGrounded = true;
-           
+
+        }
+        if (collision.gameObject.tag == "wall")
+        {
+            isWall = true;
+
         }
     }
     private void OnCollisionExit2D(Collision2D collision)
@@ -127,8 +163,16 @@ public class PlayerController : MonoBehaviour
             isGrounded = false;
            
         }
-    }
+        if (collision.gameObject.tag == "wall")
+        {
+            isWall = false;
 
+        }
+    }
+    public bool IsWall()
+    {
+        return isWall;
+    }
 
     public bool IsWalking()
     {
